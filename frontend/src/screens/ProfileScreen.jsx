@@ -7,11 +7,8 @@ import Loader from "../components/Loader";
 import { FaTimes } from 'react-icons/fa';
 import { useProfileMutation } from '../slices/userApiSlice';
 import { setCredentials } from '../slices/authSlice';
-import { 
-    useGetMyOrdersQuery
-} from '../slices/ordersApiSlice';
+import { useGetMyOrdersQuery } from '../slices/ordersApiSlice';
 import { LinkContainer } from 'react-router-bootstrap';
-
 
 const ProfileScreen = () => {
   const [name, setName] = useState("");
@@ -23,11 +20,7 @@ const ProfileScreen = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const [updateProfile, { isLoading: isLoadingUpdateProfile }] = useProfileMutation();
 
-  const { 
-    data: orders, 
-    isLoading, 
-    error,
-} = useGetMyOrdersQuery();
+  const { data: orders, isLoading, error } = useGetMyOrdersQuery();
 
   useEffect(() => {
     if (userInfo) {
@@ -110,55 +103,65 @@ const ProfileScreen = () => {
 
       <Col md={9}>
         <h2>My Orders</h2>
-        { isLoading ? <Loader /> :error ? (<Message variant = 'danger'>
-            { error?.data?.message || error.error }
-        </Message>) : (
-            <Table striped hover responsive className='table-sm'>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>DATE</th>
-                        <th>TOTAL</th>
-                        <th>PAID</th>
-                        <th>DELIVERED</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {orders.map((order) => (
-                        <tr key={order._id}>
-                            <td>{order._id}</td>
-                            <td>{order.createdAt.substring(0,10)}</td>
-                            <td>${order.totalPrice}</td>
-                            <td>
-                                { order.isPaid ? (
-                                    order.paidAt.substring(0,10)
-                                ) : (
-                                    <FaTimes style={{ color: 'red' }}/>
-                                )}
-                            </td>
-                            <td>
-                                {order.isDelivered ? (
-                                    order.deliveredAt.substring(0, 10)
-                                ) : (
-                                    <FaTimes style={{ color: 'red'}} />
-                                )}
-                            </td>
-                            <td>
-                                <LinkContainer to={`/order/${order._id}`}>
-                                    <Button className='btn-sm' variant='light'>
-                                        Details
-                                    </Button>
-                                </LinkContainer>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
+        {isLoading ? (
+          <Loader />
+        ) : error ? (
+          <Message variant='danger'>
+            {error?.data?.message || error.error}
+          </Message>
+        ) : (
+          <Table striped hover responsive className='table-sm'>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>DATE</th>
+                <th>TOTAL</th>
+                <th>PAID</th>
+                <th>DELIVERED</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => {
+                console.log(order); // 打印每个order对象
+                return (
+                  <tr key={order._id}>
+                    <td>{order._id}</td>
+                    {/* 修改：检查 createdAt 是否为 undefined */}
+                    <td>{order.createdAt ? order.createdAt.substring(0, 10) : 'N/A'}</td>
+                    <td>${order.totalPrice}</td>
+                    <td>
+                      {order.isPaid ? (
+                        /* 修改：检查 paidAt 是否为 undefined */
+                        order.paidAt ? order.paidAt.substring(0, 10) : 'N/A'
+                      ) : (
+                        <FaTimes style={{ color: 'red' }} />
+                      )}
+                    </td>
+                    <td>
+                      {order.isDelivered ? (
+                        /* 修改：检查 deliveredAt 是否为 undefined */
+                        order.deliveredAt ? order.deliveredAt.substring(0, 10) : 'N/A'
+                      ) : (
+                        <FaTimes style={{ color: 'red' }} />
+                      )}
+                    </td>
+                    <td>
+                      <LinkContainer to={`/order/${order._id}`}>
+                        <Button className='btn-sm' variant='light'>
+                          Details
+                        </Button>
+                      </LinkContainer>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
         )}
-        </Col>
+      </Col>
     </Row>
   );
-}
+};
 
 export default ProfileScreen;

@@ -14,7 +14,7 @@ const CartScreen = () => {
     const { cartItems } = cart;
 
     const addToCartHandler = async (product, qty) => {
-        dispatch(addToCart({ ...product, qty}));
+        dispatch(addToCart({ ...product, qty: Number(qty) }));
     };
 
     const removeFromCartHandler = async (id) => {
@@ -24,6 +24,8 @@ const CartScreen = () => {
     const checkoutHandler =() => {
         navigate('/login?redirect=/shipping');
     };
+
+    console.log('Cart Items:', cartItems);
 
 
 
